@@ -1,0 +1,96 @@
+body {
+    background-image: url('background.png');
+    color: #ffffff;
+    margin: 0;
+    height: 100vh;
+    width: 200vw;
+    overflow: hidden;
+    cursor: none;
+}
+
+#infobox {
+    position: absolute;
+    top: 945px;
+    left: 35px;
+    width: 341px;
+    height: 100px;
+}
+
+
+/* text */
+
+/* TODO: fix font not being exactly the same    only really minor differences*/
+#time {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    font-size: 32px;
+    font-family: 'DejaVu Sans';
+    user-select: none; 
+}
+
+#date {
+    position: absolute;
+    top: 48px;
+    left: 10px;
+    font-size: 14px;
+    font-family: 'DejaVu Sans';
+    user-select: none; 
+    font-kerning: none;
+}
+
+#message {
+    position: absolute;
+    bottom: 8px;
+    left: 10px;
+    font-size: 15px;
+    font-family: 'DejaVu Sans';
+    user-select: none; 
+    font-kerning: none;
+}
+
+
+/* reactive */
+
+
+#reactive-element {
+    position: absolute;
+    width: 130px;
+    height: 100%;
+    right: 0px;
+}
+
+
+/* status bar */
+
+#status-bar {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 4px;
+    background-color: #000000;
+}
+
+.status-bar-wrong {
+    background-color: #ff0000 !important;
+}
+
+.status-bar-checking {
+    background-color: #0000ff !important;
+}
+
+
+/* reactive bars */
+
+.reactive-bar {
+    position: absolute;
+    height: 100%;
+}
+
+.reactive-bar-type {
+    background-color: #780bd4 !important
+}
+
+.reactive-bar-bs {
+    background-color: #9d1717 !important
+}

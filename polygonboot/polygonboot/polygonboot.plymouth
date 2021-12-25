@@ -1,0 +1,9 @@
+[Plymouth Theme]
+Name=polygonboot
+Description=Displays polygon theme on boot
+Comment=clock requires plymouth-time addon and correct timezones set to initramfs
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/polygonboot
+ScriptFile=/usr/share/plymouth/themes/polygonboot/polygonboot.script

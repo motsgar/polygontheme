@@ -1,0 +1,234 @@
+//-------------------------- Non changing variables --------------------------//
+
+barCount = 5;
+barTotalWidth = 130;
+barEnabledTime = 4;
+wrongPasswordTime = 120;
+
+//----------------------------- Status booleans ------------------------------//
+
+started = 0;
+typingPassword = 0;
+checkingPassword = 0;
+cryptUnlocked = 0;
+
+//----------------------------- Background image -----------------------------//
+
+backgroundImage.image = Image("background.png");
+backgroundImage.sprite = Sprite(backgroundImage.image);
+
+//------------------------------ Date and time -------------------------------//
+
+timeSprite = Sprite();
+dateSprite = Sprite();
+
+timeSprite.SetX(45);
+timeSprite.SetY(950);
+dateSprite.SetX(45);
+dateSprite.SetY(992);
+
+fun updateTime () {
+	timeSprite.SetImage(Image.Text(Time.GetTimeFormat("%H:%M:%S"), 1, 1, 1, 1, "DejaVu Sans 24"));
+	dateSprite.SetImage(Image.Text(Time.GetTimeFormat("%A, %d/%m"), 1, 1, 1, 1, "DejaVu Sans 11"));
+}
+
+//------------------------------- Status text --------------------------------//
+
+statusTextSprite = Sprite();
+statusTextSprite.SetX(45);
+statusTextSprite.SetY(1019);
+
+fun setStatus(status) {
+	statusTextSprite.SetImage(Image.Text(status, 1, 1, 1, 1, "DejaVu Sans 11.5"));
+}
+
+setStatus("Type password to unlock");
+
+//-------------------------------- Status bar --------------------------------//
+
+statusbar.image_default = Image("status_default.png");
+statusbar.image_checking = Image("status_checking.png");
+statusbar.image_wrong = Image("status_wrong.png");
+statusbar.image_correct = Image("status_correct.png");
+statusbar.sprite = Sprite(statusbar.image_default);
+
+statusbar.sprite.SetX(245);
+statusbar.sprite.SetY(1041);
+
+WrongPasswordTimer = 0;
+
+fun updateStatusBar() {
+	if (statusWrongTimer > 0) {
+		statusWrongTimer--;
+		if (statusWrongTimer == 0) {
+			statusbar.sprite.SetImage(statusbar.image_default);
+		}
+	}
+}
+
+fun statusCheckingPassword() {
+	statusbar.sprite.SetImage(statusbar.image_checking);
+}
+
+fun statusWrongPassword() {
+	statusbar.sprite.SetImage(statusbar.image_wrong);
+	baseWrongTimer = wrongPasswordTime;
+}
+
+fun statusCorrectPassword() {
+	statusbar.sprite.SetImage(statusbar.image_correct);
+}
+
+//------------------------------ Blinking bars -------------------------------//
+
+verticalbar.image_typing = Image("bar_typing.png");
+verticalbar.image_backspace = Image("bar_backspace.png");
+
+verticalbarSprites = null;
+
+verticalbarInitialY = 945;
+
+for (i = 0; i < barCount; i++) {
+	verticalbarSprites[i] = Sprite();
+	verticalbarSprites[i].SetX(Math.Int(barTotalWidth / barCount * i) + 245);
+	verticalbarSprites[i].SetY(verticalbarInitialY);
+	verticalbarSprites[i].SetOpacity(0);
+}
+
+activeBarIndex = 0;
+activeBarTimer = 0;
+
+fun updateStatusBar() {
+	if (activeBarTimer > 0) {
+		activeBarTimer--;
+		if (activeBarTimer == 0) {
+			verticalbarSprites[activeBarIndex].SetOpacity(0);
+		}
+	}
+}
+
+fun resetBar() {
+	verticalbarSprites[activeBarIndex].SetOpacity(0);
+	activeBarTimer = 0;
+}
+
+fun verticalbarType(index) {
+	resetBar();
+	verticalbarSprites[index].SetImage(verticalbar.image_typing);
+	verticalbarSprites[index].SetOpacity(1);
+	activeBarTimer = barEnabledTime;
+	activeBarIndex = index;
+}
+
+fun verticalbarBackspace(index) {
+	resetBar();
+	verticalbarSprites[index].SetImage(verticalbar.image_backspace);
+	verticalbarSprites[index].SetOpacity(1);
+	activeBarTimer = barEnabledTime;
+	activeBarIndex = index;
+}
+
+fun verticalbarBootProgress(progress) {
+	for (i = 0; i < barCount; i++) {
+		barHeigth = Math.Int(Math.Clamp(progress * 100 * barCount - i * 100, 0, 100));
+		resizedImage = verticalbar.image_typing.Scale(barTotalWidth / barCount, barHeigth);
+		verticalbarSprites[i].SetImage(resizedImage);
+		
+		if (barHeigth == 0) verticalbarSprites[i].SetOpacity(0);
+		else verticalbarSprites[i].SetOpacity(1);
+		
+		verticalbarSprites[i].SetY(verticalbarInitialY + 100 - barHeigth);
+	}
+}
+
+//--------------------------- Set refresh function ---------------------------//
+
+fun refreshCallback() {
+	updateStatusBar();
+	updateVerticalbars();
+	updateTime();
+}
+
+Plymouth.SetRefreshFunction(refreshCallback);
+Plymouth.SetRefreshRate(60);
+
+
+//---------------- Black overlay before password is prompted -----------------//
+
+blackOverlay.image = Image("black.png");
+blackOverlay.sprite = Sprite(blackOverlay.image);
+blackOverlay.sprite.SetZ(10);
+
+
+fun showEverything() {
+	if (!started) {
+		blackOverlay.sprite.SetOpacity(0);
+	}
+	started = 1;
+}
+
+//----------------------------- Password prompt ------------------------------//
+
+latestPasswordLength = 0;
+
+fun displayPasswordCallback(message, passwordLength) {
+	if (passwordLength == 0 && checkingPassword) {
+		statusWrongPassword();
+		checkingPassword = 0;
+		latestPasswordLength = 0;
+		return;
+	}
+	typingPassword = 1;
+
+	randomBarIndex = Math.Int(Math.Random() * barCount);
+	if (passwordLength > latestPasswordLength) {
+		verticalbarType(randomBarIndex);
+	} else if (passwordLength < latestPasswordLength) {
+		verticalbarBackspace(randomBarIndex);
+	} else {
+		showEverything();
+		return;
+	}
+	latestPasswordLength = passwordLength;
+}
+Plymouth.SetDisplayPasswordFunction(displayPasswordCallback);
+
+//-------------------------- Set to normal callback --------------------------//
+
+fun displayNormalCallback() {
+	if (typingPassword) {
+		checkingPassword = 1;
+		statusCheckingPassword();
+	}
+	typingPassword = 0;
+}
+Plymouth.SetDisplayNormalFunction(displayNormalCallback);
+
+//------------------------ Password correct callback -------------------------//
+
+bootProgressWhenUnlocked = 0;
+currentBootProgress = 0;
+
+fun rootMountedCallback() {
+	checkingPassword = 0;
+	typingPassword = 0;
+	cryptUnlocked = 1;
+	statusCorrectPassword();
+	setStatus("Decrypting");
+	bootProgressWhenUnlocked = currentBootProgress;
+}
+Plymouth.SetRootMountedFunction(rootMountedCallback);
+
+//-------------------------- Boot progress callback --------------------------//
+
+fun getAdjustedProgress(progress) {
+	return (progress - bootProgressWhenUnlocked) / (1 - bootProgressWhenUnlocked);
+}
+
+fun bootProgressFunction(time, progress) {
+	currentBootProgress = progress;
+	if (cryptUnlocked) {
+		verticalbarBootProgress(getAdjustedProgress(progress));
+	}
+}
+Plymouth.SetBootProgressFunction(bootProgressFunction);
