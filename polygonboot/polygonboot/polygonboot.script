@@ -23,9 +23,9 @@ timeSprite = Sprite();
 dateSprite = Sprite();
 
 timeSprite.SetX(45);
-timeSprite.SetY(950);
+timeSprite.SetY(1310);
 dateSprite.SetX(45);
-dateSprite.SetY(992);
+dateSprite.SetY(1352);
 
 fun updateTime () {
 	timeSprite.SetImage(Image.Text(Time.GetTimeFormat("%H:%M:%S"), 1, 1, 1, 1, "DejaVu Sans 24"));
@@ -36,7 +36,7 @@ fun updateTime () {
 
 statusTextSprite = Sprite();
 statusTextSprite.SetX(45);
-statusTextSprite.SetY(1019);
+statusTextSprite.SetY(1379);
 
 fun setStatus(status) {
 	statusTextSprite.SetImage(Image.Text(status, 1, 1, 1, 1, "DejaVu Sans 11.5"));
@@ -53,7 +53,7 @@ statusbar.image_correct = Image("status_correct.png");
 statusbar.sprite = Sprite(statusbar.image_default);
 
 statusbar.sprite.SetX(245);
-statusbar.sprite.SetY(1041);
+statusbar.sprite.SetY(1401);
 
 WrongPasswordTimer = 0;
 
@@ -86,7 +86,7 @@ verticalbar.image_backspace = Image("bar_backspace.png");
 
 verticalbarSprites = null;
 
-verticalbarInitialY = 945;
+verticalbarInitialY = 1305;
 
 for (i = 0; i < barCount; i++) {
 	verticalbarSprites[i] = Sprite();
@@ -214,7 +214,7 @@ fun rootMountedCallback() {
 	typingPassword = 0;
 	cryptUnlocked = 1;
 	statusCorrectPassword();
-	setStatus("Decrypting");
+	setStatus("Starting...");
 	bootProgressWhenUnlocked = currentBootProgress;
 }
 Plymouth.SetRootMountedFunction(rootMountedCallback);

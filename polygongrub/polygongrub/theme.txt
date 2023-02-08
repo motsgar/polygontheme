@@ -28,9 +28,9 @@ terminal-border: "0"
 
 + progress_bar {
 		id = "__timeout__"
-		left = 585
-		width = 750
-		top = 650
+		left = 780
+		width = 1000
+		top = 1150
 		height = 30
 		show_text = false
 		bar_style = "progress_bar_*.png"
